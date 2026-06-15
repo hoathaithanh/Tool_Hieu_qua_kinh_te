@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Công cụ Đánh giá Hiệu quả Kinh tế</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --secondary: #10b981;
+            --danger: #ef4444;
+            --danger-hover: #dc2626;
+            --bg: #f3f4f6;
+            --surface: #ffffff;
+            --text-main: #1f2937;
+            --text-light: #6b7280;
+            --border: #e5e7eb;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --radius: 12px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            line-height: 1.6;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--primary);
+            margin-bottom: 2rem;
+            font-weight: 700;
+            font-size: 2.5rem;
+        }
+
+        .grid-layout {
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+            gap: 2rem;
+        }
+
+        @media (max-width: 1100px) {
+            .grid-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background-color: var(--surface);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+            border: 1px solid var(--border);
+        }
+
+        .card h2 {
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+            color: var(--text-main);
+            border-bottom: 2px solid var(--primary);
+            padding-bottom: 0.5rem;
+            display: inline-block;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        input[type="number"], input[type="text"] {
+            width: 100%;
+            padding: 0.6rem;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9rem;
+            transition: border-color 0.3s;
+        }
+
+        input[type="number"]:focus, input[type="text"]:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .row-grid {
+            display: grid;
+            grid-template-columns: 2.5fr 1fr 1.5fr 1fr 1fr 0.5fr;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+            align-items: center;
+        }
+
+        .row-header {
+            font-weight: 600;
+            color: var(--text-light);
+            font-size: 0.8rem;
+            margin-bottom: 0.5rem;
+            padding-bottom: 0.25rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .btn-danger {
+            background-color: var(--danger);
+            color: white;
+            padding: 0.6rem;
+            width: 100%;
+        }
+
+        .btn-danger:hover {
+            background-color: var(--danger-hover);
+        }
+
+        .add-btn {
+            width: 100%;
+            margin-top: 0.5rem;
+            padding: 0.75rem;
+            background-color: transparent;
+            border: 2px dashed var(--border);
+            color: var(--text-light);
+        }
+
+        .add-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            background-color: rgba(37, 99, 235, 0.05);
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .result-card {
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            color: white;
+            padding: 1.5rem;
+            border-radius: var(--radius);
+            text-align: center;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .result-card.success {
+            background: linear-gradient(135deg, #10b981, #059669);
+        }
+
+        .result-card.warning {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+        }
+
+        .result-title {
+            font-size: 0.875rem;
+            opacity: 0.9;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .result-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        
+        .currency-selector {
+            text-align: right;
+            margin-bottom: 1rem;
+        }
+        
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Công cụ Đánh giá Hiệu quả Kinh tế</h1>
+    
+    <div class="currency-selector">
+        <label style="display:inline; margin-right: 10px;">Tiền tệ:</label>
+        <input type="text" id="currency" value="VNĐ" list="currency-options" oninput="calculate()" style="width: 100px; padding: 0.5rem; border-radius: 6px; border: 1px solid var(--border);">
+        <datalist id="currency-options">
+            <option value="VNĐ"></option>
+            <option value="USD"></option>
+            <option value="EUR"></option>
+            <option value="€"></option>
+            <option value="$"></option>
+        </datalist>
+    </div>
+
+    <div class="grid-layout">
+        <!-- Left Column: Inputs -->
+        <div>
+            <div class="card">
+                <h2>1. Cài đặt tham số chung</h2>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label>Lãi suất (%)</label>
+                        <input type="number" id="param-interest" value="5" step="0.1" oninput="calculate()">
+                    </div>
+                    <div class="form-group">
+                        <label>Tuổi thọ dự kiến (năm)</label>
+                        <input type="number" id="param-life" value="20" step="1" oninput="calculate()">
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>2. Chi phí đầu tư ban đầu (Năm 0)</h2>
+                <div class="row-grid row-header" style="grid-template-columns: 3.5fr 1fr 2.5fr 0.5fr;">
+                    <div>Hạng mục</div>
+                    <div>Số lượng</div>
+                    <div>Đơn giá</div>
+                    <div>Xóa</div>
+                </div>
+                <div id="investments-container">
+                    <!-- Dynamic rows -->
+                </div>
+                <button class="btn add-btn" onclick="addRow('investments')">+ Thêm chi phí đầu tư</button>
+                <div style="text-align:right; margin-top: 1rem; font-weight: bold; color: var(--danger)">Tổng đầu tư: <span id="total-investment">0</span></div>
+            </div>
+
+            <div class="card">
+                <h2>3. Chi phí vận hành hàng năm</h2>
+                <div class="row-grid row-header">
+                    <div>Hạng mục</div>
+                    <div>Số lượng</div>
+                    <div>Đơn giá</div>
+                    <div>Trượt giá (%)</div>
+                    <div>Hao hụt (%)</div>
+                    <div>Xóa</div>
+                </div>
+                <div id="annual-costs-container">
+                    <!-- Dynamic rows -->
+                </div>
+                <button class="btn add-btn" onclick="addRow('annual-costs')">+ Thêm chi phí vận hành</button>
+                <div style="text-align:right; margin-top: 1rem; font-weight: bold; color: var(--danger)">Tổng chi phí/năm (hiện tại): <span id="total-annual-costs">0</span></div>
+            </div>
+
+            <div class="card">
+                <h2>4. Lợi ích / Tiết kiệm hàng năm</h2>
+                <div class="row-grid row-header">
+                    <div>Hạng mục</div>
+                    <div>Số lượng</div>
+                    <div>Đơn giá</div>
+                    <div>Trượt giá (%)</div>
+                    <div>Hao hụt (%)</div>
+                    <div>Xóa</div>
+                </div>
+                <div id="benefits-container">
+                    <!-- Dynamic rows -->
+                </div>
+                <button class="btn add-btn" onclick="addRow('benefits')">+ Thêm lợi ích</button>
+                <div style="text-align:right; margin-top: 1rem; font-weight: bold; color: var(--secondary)">Tổng lợi ích/năm (hiện tại): <span id="total-benefits">0</span></div>
+            </div>
+        </div>
+
+        <!-- Right Column: Results & Chart -->
+        <div>
+            <div class="results-grid">
+                <div class="result-card" id="card-npv">
+                    <div class="result-title">Giá trị hiện tại ròng (NPV)</div>
+                    <div class="result-value" id="res-npv">0</div>
+                </div>
+                <div class="result-card" id="card-static">
+                    <div class="result-title">Hoàn vốn tĩnh</div>
+                    <div class="result-value" id="res-static">0 năm</div>
+                </div>
+                <div class="result-card" id="card-dynamic">
+                    <div class="result-title">Hoàn vốn động</div>
+                    <div class="result-value" id="res-dynamic">0 năm</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Biểu đồ Dòng tiền Tích lũy (Có chiết khấu)</h2>
+                <canvas id="cashflowChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let chartInstance = null;
+
+    function formatCurrency(value) {
+        const currency = document.getElementById('currency').value;
+        return new Intl.NumberFormat('vi-VN').format(Math.round(value)) + ' ' + currency;
+    }
+
+    function createRowHTML(type) {
+        if (type === 'investments') {
+            return `
+                <div class="row-grid item-row" style="grid-template-columns: 3.5fr 1fr 2.5fr 0.5fr;">
+                    <input type="text" placeholder="Tên hạng mục" class="item-name" oninput="calculate()">
+                    <input type="number" placeholder="SL" value="1" class="item-qty" oninput="calculate()">
+                    <input type="number" placeholder="Đơn giá" value="0" class="item-price" oninput="calculate()">
+                    <button class="btn btn-danger" onclick="this.parentElement.remove(); calculate()">X</button>
+                </div>
+            `;
+        }
+        return `
+            <div class="row-grid item-row">
+                <input type="text" placeholder="Tên hạng mục" class="item-name" oninput="calculate()">
+                <input type="number" placeholder="SL" value="1" class="item-qty" oninput="calculate()">
+                <input type="number" placeholder="Đơn giá" value="0" class="item-price" oninput="calculate()">
+                <input type="number" placeholder="Trượt giá %" value="0" step="0.1" class="item-pc" oninput="calculate()">
+                <input type="number" placeholder="Hao hụt %" value="0" step="0.1" class="item-deg" oninput="calculate()">
+                <button class="btn btn-danger" onclick="this.parentElement.remove(); calculate()">X</button>
+            </div>
+        `;
+    }
+
+    function addRow(containerId) {
+        const container = document.getElementById(containerId + '-container');
+        container.insertAdjacentHTML('beforeend', createRowHTML(containerId));
+    }
+
+    function getRowData(containerId) {
+        const container = document.getElementById(containerId + '-container');
+        const rows = container.querySelectorAll('.item-row');
+        let data = [];
+        rows.forEach(row => {
+            const qty = parseFloat(row.querySelector('.item-qty').value) || 0;
+            const price = parseFloat(row.querySelector('.item-price').value) || 0;
+            const pcInput = row.querySelector('.item-pc');
+            const degInput = row.querySelector('.item-deg');
+            const pc = pcInput ? (parseFloat(pcInput.value) || 0) / 100 : 0;
+            const deg = degInput ? (parseFloat(degInput.value) || 0) / 100 : 0;
+            data.push({ base: qty * price, pc: pc, deg: deg });
+        });
+        return data;
+    }
+
+    function calculate() {
+        // 1. Get Parameters
+        const interestRate = (parseFloat(document.getElementById('param-interest').value) || 0) / 100;
+        const expectedLife = parseInt(document.getElementById('param-life').value) || 1;
+
+        // 2. Get Data Arrays
+        const investmentsData = getRowData('investments');
+        const costsData = getRowData('annual-costs');
+        const benefitsData = getRowData('benefits');
+
+        // 3. Calculate Base Totals (Year 0)
+        let totalInvestment = 0;
+        investmentsData.forEach(item => totalInvestment += item.base);
+        
+        let totalAnnualCostsBase = 0;
+        costsData.forEach(item => totalAnnualCostsBase += item.base);
+        
+        let totalBenefitsBase = 0;
+        benefitsData.forEach(item => totalBenefitsBase += item.base);
+
+        document.getElementById('total-investment').innerText = formatCurrency(totalInvestment);
+        document.getElementById('total-annual-costs').innerText = formatCurrency(totalAnnualCostsBase);
+        document.getElementById('total-benefits').innerText = formatCurrency(totalBenefitsBase);
+
+        // 4. Cashflow Calculations Over Expected Life
+        const years = Array.from({length: expectedLife + 1}, (_, i) => i);
+        let cumulativeCashflow = [-totalInvestment];
+        let npv = -totalInvestment;
+        let dynamicAmortization = -1;
+
+        const netAnnualBenefitBase = totalBenefitsBase - totalAnnualCostsBase;
+        
+        for (let t = 1; t <= expectedLife; t++) {
+            let total_b_t = 0;
+            benefitsData.forEach(item => {
+                // Price change and degradation apply starting from year 2 (t=2 -> exponent 1) relative to year 1 amounts.
+                total_b_t += item.base * Math.pow(1 + item.pc, t - 1) * Math.pow(1 + item.deg, t - 1);
+            });
+            
+            let total_c_t = 0;
+            costsData.forEach(item => {
+                total_c_t += item.base * Math.pow(1 + item.pc, t - 1) * Math.pow(1 + item.deg, t - 1);
+            });
+            
+            let netCashflowYearT = total_b_t - total_c_t;
+            
+            // Discount to present value
+            let discountedCashflow = netCashflowYearT / Math.pow(1 + interestRate, t);
+            npv += discountedCashflow;
+            
+            let currentCumulative = cumulativeCashflow[t-1] + discountedCashflow;
+            cumulativeCashflow.push(currentCumulative);
+
+            if (dynamicAmortization === -1 && currentCumulative >= 0) {
+                // Linear interpolation for more precise year
+                let prev = cumulativeCashflow[t-1];
+                let fraction = Math.abs(prev) / (Math.abs(prev) + currentCumulative);
+                dynamicAmortization = (t - 1) + fraction;
+            }
+        }
+
+        // 5. Update Result Cards
+        const resNpvEl = document.getElementById('res-npv');
+        resNpvEl.innerText = formatCurrency(npv);
+        
+        const cardNpv = document.getElementById('card-npv');
+        if (npv > 0) {
+            cardNpv.className = 'result-card success';
+        } else {
+            cardNpv.className = 'result-card warning';
+        }
+
+        // Static Amortization
+        const staticAmortization = netAnnualBenefitBase > 0 ? (totalInvestment / netAnnualBenefitBase) : Infinity;
+        
+        if (staticAmortization <= expectedLife) {
+            document.getElementById('res-static').innerText = staticAmortization.toFixed(1) + ' năm';
+            document.getElementById('card-static').className = 'result-card success';
+        } else {
+            document.getElementById('res-static').innerText = '> Tuổi thọ';
+            document.getElementById('card-static').className = 'result-card warning';
+        }
+
+        // Dynamic Amortization
+        if (dynamicAmortization !== -1) {
+            document.getElementById('res-dynamic').innerText = dynamicAmortization.toFixed(1) + ' năm';
+            document.getElementById('card-dynamic').className = 'result-card success';
+        } else {
+            document.getElementById('res-dynamic').innerText = '> Tuổi thọ';
+            document.getElementById('card-dynamic').className = 'result-card warning';
+        }
+
+        // 6. Update Chart
+        updateChart(years, cumulativeCashflow);
+    }
+
+    function updateChart(labels, data) {
+        const ctx = document.getElementById('cashflowChart').getContext('2d');
+        const pointColors = data.map(val => val >= 0 ? '#10b981' : '#ef4444');
+
+        if (chartInstance) {
+            chartInstance.destroy();
+        }
+
+        chartInstance = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels.map(y => 'Năm ' + y),
+                datasets: [{
+                    label: 'Dòng tiền tích lũy (chiết khấu)',
+                    data: data,
+                    borderColor: '#2563eb',
+                    backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                    borderWidth: 2,
+                    pointBackgroundColor: pointColors,
+                    pointRadius: 4,
+                    fill: true,
+                    tension: 0.1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return formatCurrency(context.raw);
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        ticks: {
+                            callback: function(value) {
+                                return new Intl.NumberFormat('vi-VN').format(value);
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // Populate with actual test data from GIZ Binh Duong Excel to show it matches!
+    window.onload = () => {
+        // Investments
+        const invContainer = document.getElementById('investments-container');
+        invContainer.innerHTML = '';
+        const invData = [
+            {name: "PV system", qty: 3000, price: 16500000},
+            {name: "Heat pump system", qty: 4000, price: 20500000},
+            {name: "Additional project costs", qty: 1, price: 10000000000}
+        ];
+        invData.forEach(d => {
+            addRow('investments');
+            const row = invContainer.lastElementChild;
+            row.querySelector('.item-name').value = d.name;
+            row.querySelector('.item-qty').value = d.qty;
+            row.querySelector('.item-price').value = d.price;
+        });
+
+        // Annual Costs
+        const costContainer = document.getElementById('annual-costs-container');
+        costContainer.innerHTML = '';
+        const costData = [
+            {name: "Operating Costs PV", qty: 1, price: 600000000, pc: 3, deg: 0},
+            {name: "Operating Costs HP", qty: 1, price: 1600000000, pc: 3, deg: 0},
+            {name: "HP Electricity", qty: 1938000, price: 1791, pc: 5, deg: 0}
+        ];
+        costData.forEach(d => {
+            addRow('annual-costs');
+            const row = costContainer.lastElementChild;
+            row.querySelector('.item-name').value = d.name;
+            row.querySelector('.item-qty').value = d.qty;
+            row.querySelector('.item-price').value = d.price;
+            row.querySelector('.item-pc').value = d.pc;
+            row.querySelector('.item-deg').value = d.deg;
+        });
+
+        // Benefits
+        const benContainer = document.getElementById('benefits-container');
+        benContainer.innerHTML = '';
+        const benData = [
+            {name: "Electricity savings PV", qty: 3944700, price: 1791, pc: 5, deg: -1},
+            {name: "Fuel Savings LPG", qty: 7980000, price: 1330, pc: 1, deg: 0},
+            {name: "Electricity sold to grid", qty: 438300, price: 1012, pc: 5, deg: -1}
+        ];
+        benData.forEach(d => {
+            addRow('benefits');
+            const row = benContainer.lastElementChild;
+            row.querySelector('.item-name').value = d.name;
+            row.querySelector('.item-qty').value = d.qty;
+            row.querySelector('.item-price').value = d.price;
+            row.querySelector('.item-pc').value = d.pc;
+            row.querySelector('.item-deg').value = d.deg;
+        });
+
+        calculate();
+    };
+</script>
+
+</body>
+</html>
